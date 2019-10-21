@@ -6,14 +6,15 @@
 ApiConnector connector;
 
 void setup() {
+  pinMode(CONNECTION_LED, OUTPUT);
   Serial.begin(SERIAL_BAUD);
   Serial2.begin(METER_BAUD);
 
   delay(4000);
-  Serial.println("hey connected");
-
 
   connector.connect();
+
+  digitalWrite(CONNECTION_LED, HIGH);
 }
 
 void loop() {
