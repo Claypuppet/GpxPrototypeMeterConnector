@@ -8,5 +8,8 @@ def send_measurement(measurement: Measurement):
     json = measurement.as_dict()
     json['id'] = DEVICE_ID
     print(json)
-    response = requests.post(url=API_ENDPOINT, json=json, headers={"user-agent": HEADER_API_USER_AGENT})
-    return response.status_code in [200, 201]
+    try:
+        response = requests.post(url=API_ENDPOINT, json=json, headers={"user-agent": HEADER_API_USER_AGENT})
+        return response.status_code in [200, 201]
+    except:
+        return False
