@@ -1,14 +1,15 @@
-#include <WiFi.h>
-
 #include "user_config.h"
 #include "ApiConnector.hpp"
 
 ApiConnector connector;
 
+HardwareSerial& MeterSerial = Serial;
+HardwareSerial& DebugSerial = Serial2;
+
 void setup() {
   pinMode(CONNECTION_LED, OUTPUT);
-  Serial.begin(SERIAL_BAUD);
-  Serial2.begin(METER_BAUD);
+  DebugSerial.begin(DEBUG_BAUD);
+  MeterSerial.begin(METER_BAUD);
 
   delay(4000);
 
@@ -22,10 +23,16 @@ void loop() {
   String line = "";
   while (line.length() == 0 || line.charAt(0) != '!') {
     line.clear();
-    line = Serial2.readStringUntil('\n') + ";;";
-    line.replace('\r', ' ');
-    data = data + line;
+    line = MeterSerial.readStringUntil('\n');
+    if(line.length()) {
+      line += ";;";
+      line.replace('\r', ' ');
+      data = data + line;
+    }
   }
+
+  DebugSerial.println(data);
+
   connector.sendData(data);
 }
 

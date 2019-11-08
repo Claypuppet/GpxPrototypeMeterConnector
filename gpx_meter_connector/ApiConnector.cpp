@@ -12,13 +12,14 @@ ApiConnector::ApiConnector() {
 void ApiConnector::connect() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
+  bool led = false;
   while (WiFi.status() != WL_CONNECTED) {
+    DebugSerial.println("Connecting to WiFi " WIFI_SSID);
     delay(1000);
-    Serial.print("Connecting to WiFi ");
-    Serial.println(WIFI_SSID);
+    digitalWrite(CONNECTION_LED, led = !led);
   }
 
-  Serial.println("Connected to the WiFi network");
+  DebugSerial.println("Connected to the WiFi network");
 }
 
 bool ApiConnector::sendData(const String& data) {
@@ -36,10 +37,10 @@ bool ApiConnector::sendData(const String& data) {
     payload += "\"}";
 
 
-    Serial.println("data");
-    Serial.println(data);
-    Serial.println("payload");
-    Serial.println(payload);
+    DebugSerial.println("data");
+    DebugSerial.println(data);
+    DebugSerial.println("payload");
+    DebugSerial.println(payload);
 
     int httpResponseCode = http.POST(payload);
 
@@ -47,12 +48,12 @@ bool ApiConnector::sendData(const String& data) {
 
       String response = http.getString();                       //Get the response to the request
 
-      Serial.println(httpResponseCode);   //Print return code
-      Serial.println(response);           //Print request answer
+      DebugSerial.println(httpResponseCode);   //Print return code
+      DebugSerial.println(response);           //Print request answer
 
     } else {
-      Serial.print("Error on sending POST: ");
-      Serial.println(httpResponseCode);
+      DebugSerial.print("Error on sending POST: ");
+      DebugSerial.println(httpResponseCode);
       return false;
     }
 

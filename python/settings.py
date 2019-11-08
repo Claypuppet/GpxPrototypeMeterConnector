@@ -1,0 +1,8 @@
+
+GPX_METER_CONNECTOR_VERSION = "1.0"
+
+DEVICE_ID = 555
+
+API_HOST = "localhost"
+HEADER_API_USER_AGENT = "gpxMeterConnector/" + GPX_METER_CONNECTOR_VERSION
+API_ENDPOINT = "http://" + API_HOST + ":3000/measurements"
