@@ -3,14 +3,11 @@ import re
 
 
 class Measurement(object):
-    class Meta:
-        # No database model needed
-        abstract = True
-
     _df = r"\((?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<min>\d{2})(?P<sec>\d{2})(?P<ws>W|S)\)"
 
     started = False
     completed = False
+    exception = False
 
     raw = ''
     version = None
@@ -45,73 +42,77 @@ class Measurement(object):
             return
         self.raw += line
 
-        if line.startswith('1-3:0.2.8'):
-            self.version = int(re.search(r"\((\d+)\)", line)[1])
-        elif line.startswith('0-0:1.0.0'):
-            moment = re.search(self._df, line)
-            self.power_moment = datetime.datetime(
-                year=2000 + int(moment.group("year")),
-                month=int(moment.group("month")),
-                day=int(moment.group("day")),
-                hour=int(moment.group("hour")) - (1 if moment.group("ws") == "S" else 0),
-                minute=int(moment.group("min")),
-                second=int(moment.group("sec")),
-            ).astimezone(datetime.timezone.utc)
-        elif line.startswith('0-0:96.1.1'):
-            self.sn_pow = re.search(r"\((.*)\)", line)[1]
-        elif line.startswith('1-0:1.8.1'):
-            self.cons_1 = float(re.search(r"\((\d+\.\d+)\*kWh\)", line)[1])
-        elif line.startswith('1-0:1.8.2'):
-            self.cons_2 = float(re.search(r"\((\d+\.\d+)\*kWh\)", line)[1])
-        elif line.startswith('1-0:2.8.1'):
-            self.prod_1 = float(re.search(r"\((\d+\.\d+)\*kWh\)", line)[1])
-        elif line.startswith('1-0:2.8.2'):
-            self.prod_2 = float(re.search(r"\((\d+\.\d+)\*kWh\)", line)[1])
-        elif line.startswith('0-0:96.14.0'):
-            self.tariff = int(re.search(r"\((\d+)\)", line)[1])
-        elif line.startswith('1-0:1.7.0'):
-            self.power_consumption = float(re.search(r"\((\d+\.\d+)\*kW\)", line)[1])
-        elif line.startswith('1-0:2.7.0'):
-            self.power_production = float(re.search(r"\((\d+\.\d+)\*kW\)", line)[1])
-        elif line.startswith('0-0:96.7.21'):
-            self.pow_fail = int(re.search(r"\((\d+)\)", line)[1])
-        elif line.startswith('0-0:96.7.9'):
-            self.long_pow_fail = int(re.search(r"\((\d+)\)", line)[1])
-        elif line.startswith('1-0:99:97.0'):
-            # TODO: parse fail logs
+        try:
+            if line.startswith('1-3:0.2.8'):
+                self.version = int(re.search(r"\((\d+)\)", line)[1])
+            elif line.startswith('0-0:1.0.0'):
+                moment = re.search(self._df, line)
+                self.power_moment = datetime.datetime(
+                    year=2000 + int(moment.group("year")),
+                    month=int(moment.group("month")),
+                    day=int(moment.group("day")),
+                    hour=int(moment.group("hour")) - (1 if moment.group("ws") == "S" else 0),
+                    minute=int(moment.group("min")),
+                    second=int(moment.group("sec")),
+                ).astimezone(datetime.timezone.utc)
+            elif line.startswith('0-0:96.1.1'):
+                self.sn_pow = re.search(r"\((.*)\)", line)[1]
+            elif line.startswith('1-0:1.8.1'):
+                self.cons_1 = float(re.search(r"\((\d+\.\d+)\*kWh\)", line)[1])
+            elif line.startswith('1-0:1.8.2'):
+                self.cons_2 = float(re.search(r"\((\d+\.\d+)\*kWh\)", line)[1])
+            elif line.startswith('1-0:2.8.1'):
+                self.prod_1 = float(re.search(r"\((\d+\.\d+)\*kWh\)", line)[1])
+            elif line.startswith('1-0:2.8.2'):
+                self.prod_2 = float(re.search(r"\((\d+\.\d+)\*kWh\)", line)[1])
+            elif line.startswith('0-0:96.14.0'):
+                self.tariff = int(re.search(r"\((\d+)\)", line)[1])
+            elif line.startswith('1-0:1.7.0'):
+                self.power_consumption = float(re.search(r"\((\d+\.\d+)\*kW\)", line)[1])
+            elif line.startswith('1-0:2.7.0'):
+                self.power_production = float(re.search(r"\((\d+\.\d+)\*kW\)", line)[1])
+            elif line.startswith('0-0:96.7.21'):
+                self.pow_fail = int(re.search(r"\((\d+)\)", line)[1])
+            elif line.startswith('0-0:96.7.9'):
+                self.long_pow_fail = int(re.search(r"\((\d+)\)", line)[1])
+            elif line.startswith('1-0:99:97.0'):
+                # TODO: parse fail logs
+                pass
+            elif line.startswith('1-0:32.32.0'):
+                self.vol_sag_1 = int(re.search(r"\((\d+)\)", line)[1])
+            elif line.startswith('1-0:52.32.0'):
+                self.vol_sag_2 = int(re.search(r"\((\d+)\)", line)[1])
+            elif line.startswith('1-0:72:32.0'):
+                self.vol_sag_3 = int(re.search(r"\((\d+)\)", line)[1])
+            elif line.startswith('1-0:32.36.0'):
+                self.vol_swell_1 = int(re.search(r"\((\d+)\)", line)[1])
+            elif line.startswith('1-0:52.36.0'):
+                self.vol_swell_2 = int(re.search(r"\((\d+)\)", line)[1])
+            elif line.startswith('1-0:72.36.0'):
+                self.vol_swell_3 = int(re.search(r"\((\d+)\)", line)[1])
+            elif line.startswith('0-1:96.1.0'):
+                self.sn_gas = re.search(r"\(([^)]+)\)", line)[1]
+            elif line.startswith('0-1:24.2.1'):
+                moment = re.search(self._df, line)
+                self.gas_moment = datetime.datetime(
+                    year=2000 + int(moment.group("year")),
+                    month=int(moment.group("month")),
+                    day=int(moment.group("day")),
+                    hour=int(moment.group("hour")) + (1 if moment.group("ws") == "S" else 0),
+                    minute=int(moment.group("min")),
+                    second=int(moment.group("sec")),
+                ).astimezone(datetime.timezone.utc)
+                self.gas = float(re.search(r"\((\d+\.\d+)\*m3\)", line)[1])
+            elif line.startswith('!'):
+                self.completed = True
+            elif line.startswith('/'):
+                self.started = True
+        except Exception as e:
+            self.exception = True
             pass
-        elif line.startswith('1-0:32.32.0'):
-            self.vol_sag_1 = int(re.search(r"\((\d+)\)", line)[1])
-        elif line.startswith('1-0:52.32.0'):
-            self.vol_sag_2 = int(re.search(r"\((\d+)\)", line)[1])
-        elif line.startswith('1-0:72:32.0'):
-            self.vol_sag_3 = int(re.search(r"\((\d+)\)", line)[1])
-        elif line.startswith('1-0:32.36.0'):
-            self.vol_swell_1 = int(re.search(r"\((\d+)\)", line)[1])
-        elif line.startswith('1-0:52.36.0'):
-            self.vol_swell_2 = int(re.search(r"\((\d+)\)", line)[1])
-        elif line.startswith('1-0:72.36.0'):
-            self.vol_swell_3 = int(re.search(r"\((\d+)\)", line)[1])
-        elif line.startswith('0-1:96.1.0'):
-            self.sn_gas = re.search(r"\(([^)]+)\)", line)[1]
-        elif line.startswith('0-1:24.2.1'):
-            moment = re.search(self._df, line)
-            self.gas_moment = datetime.datetime(
-                year=2000 + int(moment.group("year")),
-                month=int(moment.group("month")),
-                day=int(moment.group("day")),
-                hour=int(moment.group("hour")) + (1 if moment.group("ws") == "S" else 0),
-                minute=int(moment.group("min")),
-                second=int(moment.group("sec")),
-            ).astimezone(datetime.timezone.utc)
-            self.gas = float(re.search(r"\((\d+\.\d+)\*m3\)", line)[1])
-        elif line.startswith('!'):
-            self.completed = True
-        elif line.startswith('/'):
-            self.started = True
 
     def is_complete(self):
-        return self.started and self.completed
+        return self.started and self.completed and not self.exception
 
     def as_dict(self):
         return {

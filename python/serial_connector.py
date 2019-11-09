@@ -3,8 +3,8 @@ import time
 from serial import Serial, SerialException
 from serial.tools import list_ports
 
-from api_connector import send_measurement
-from measurement import Measurement
+from .api_connector import send_measurement
+from .measurement import Measurement
 
 
 class SerialConnector(object):
@@ -36,8 +36,7 @@ class SerialConnector(object):
             return None
         return available_ports[0].device
 
-    def run(self, *args, **options):
-        initial_port, baud, dry = options.get('port'), options.get('baud'), options.get('dry')
+    def run(self, *args, initial_port=None, baud=None, dry=None):
         port = self.get_port(initial_port)
         ser = Serial(port, baud)
 

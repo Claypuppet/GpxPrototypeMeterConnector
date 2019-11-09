@@ -1,7 +1,7 @@
 import os
 from argparse import ArgumentParser
 
-from serial_connector import SerialConnector
+from .serial_connector import SerialConnector
 
 connector = SerialConnector()
 
@@ -9,8 +9,8 @@ parser = ArgumentParser()
 
 parser.add_argument(
     '-p', '--port',
-    type=str,
     dest='port',
+    type=str,
     help='Device location, e.g. /dev/ttyUSBx or COMx',
     default=None
 )
@@ -19,7 +19,7 @@ parser.add_argument(
     dest='baud',
     type=str,
     help='Baudrate (default 115200)',
-    default=9600
+    default=115200
 )
 parser.add_argument(
     '--dry',
@@ -28,9 +28,4 @@ parser.add_argument(
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    args = {
-        'port': args.port,
-        'baud': args.baud,
-        'dry': args.dry,
-    }
-    connector.run(**args)
+    connector.run(initial_port=args.port, baud=args.baud, dry=args.dry)
