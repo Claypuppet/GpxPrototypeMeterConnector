@@ -12,4 +12,4 @@ def send_measurement(measurement: Measurement):
         return response.status_code in [200, 201]
     except Exception as e:
         # Failed to connect...
-        pass
+        return False

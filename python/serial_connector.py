@@ -13,10 +13,10 @@ class SerialConnector(object):
     def add_arguments(self, parser):
         parser.add_argument(
             '-p', '--port',
-            type=str,
             dest='port',
+            type=str,
             help='Device location, e.g. /dev/ttyUSBx or COMx',
-            default=None
+            default='/dev/ttyUSB0',
         )
         parser.add_argument(
             '-b', '--baud',
@@ -34,7 +34,7 @@ class SerialConnector(object):
         available_ports = list_ports.comports()
         if len(available_ports) == 0:
             return None
-        return available_ports[0].device
+        return next(port.device for port in available_ports if port.device == initial) or available_ports[0].device
 
     def run(self, *args, initial_port=None, baud=None, dry=None):
         port = self.get_port(initial_port)
