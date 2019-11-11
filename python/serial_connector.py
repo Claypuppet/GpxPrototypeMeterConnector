@@ -3,8 +3,8 @@ import time
 from serial import Serial, SerialException
 from serial.tools import list_ports
 
-from .api_connector import send_measurement
-from .measurement import Measurement
+from api_connector import send_measurement
+from measurement import Measurement
 
 
 class SerialConnector(object):

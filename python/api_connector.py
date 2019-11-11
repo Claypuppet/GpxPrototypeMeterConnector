@@ -1,7 +1,7 @@
 import requests
 
-from .measurement import Measurement
-from .settings import API_ENDPOINT, DEVICE_ID, HEADER_API_USER_AGENT
+from measurement import Measurement
+from settings import API_ENDPOINT, DEVICE_ID, HEADER_API_USER_AGENT
 
 
 def send_measurement(measurement: Measurement):

@@ -1,7 +1,7 @@
 import os
 from argparse import ArgumentParser
 
-from .serial_connector import SerialConnector
+from serial_connector import SerialConnector
 
 connector = SerialConnector()
 
