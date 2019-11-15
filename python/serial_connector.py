@@ -1,3 +1,5 @@
+import os
+import subprocess
 import time
 
 from serial import Serial, SerialException
@@ -75,3 +77,9 @@ class SerialConnector(object):
             except SerialException as e:
                 print('Serial exception', e)
                 ser.close()
+
+            except Exception:
+                # Something went very wrong ?? Very dirty fix for now
+                update_script = '/home/pi/update.sh'
+                if os.path.isfile(update_script):
+                    subprocess.call(update_script)
